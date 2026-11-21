@@ -25,8 +25,14 @@ jobs:
       - name: Check
         run: moon check --deny-warn --target all
 
-      - name: Test
-        run: moon test
+      - name: Test (native)
+        run: moon test --target native
+
+      - name: Test (wasm)
+        run: moon test --target wasm -p maya0513/jedf/src/ast -p maya0513/jedf/src/validate -p maya0513/jedf/src/codec -p maya0513/jedf/src/render_html -p maya0513/jedf/src/render_typst -p maya0513/jedf/src/cli
+
+      - name: Test (wasm-gc)
+        run: moon test --target wasm-gc -p maya0513/jedf/src/ast -p maya0513/jedf/src/validate -p maya0513/jedf/src/codec -p maya0513/jedf/src/render_html -p maya0513/jedf/src/render_typst -p maya0513/jedf/src/cli
 
       - name: Coverage
         run: |
