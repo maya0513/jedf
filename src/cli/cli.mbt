@@ -27,6 +27,9 @@ pub fn run(
     ["to-html", file] => cmd_render(file, true, read_file, out, err)
     ["to-typst", file] => cmd_render(file, false, read_file, out, err)
     ["fmt", file] => cmd_fmt(file, read_file, out, err)
+    ["to-cbor", file, output] =>
+      cmd_to_cbor(file, output, read_file, write_bytes, out, err)
+    ["from-cbor", file] => cmd_from_cbor(file, read_bytes, out, err)
     ["pack", file, output, .. assets] =>
       cmd_pack(
         file,
@@ -39,7 +42,7 @@ pub fn run(
         err,
       )
     ["unpack", file, output] =>
-      cmd_unpack(file, output, read_bytes, write_file, out, err)
+      cmd_unpack(file, output, read_bytes, write_file, write_bytes, out, err)
     [command, ..] => {
       err("jedf: unknown command: \{command}")
       print_usage(err)
@@ -56,6 +59,9 @@ fn print_usage(write : (String) -> Unit) -> Unit {
   write("  to-html <file>   Render a document as an HTML fragment")
   write("  to-typst <file>  Render a document as Typst source")
   write("  fmt <file>       Print the document in canonical JSON form")
+  write("  to-cbor <file> <output>")
+  write("                   Write a document in the CBOR encoding")
+  write("  from-cbor <file>   Print a CBOR document in canonical JSON form")
   write("  pack <file> <output> [assets...]")
   write("                   Pack a document and asset files into a container")
   write("  unpack <file> <output>")
@@ -167,6 +173,73 @@ fn cmd_fmt(
 }
 
 ///|
+fn cmd_to_cbor(
+  file : String,
+  output : String,
+  read_file : (String) -> Result[String, String],
+  write_bytes : (String, Bytes) -> Result[Unit, String],
+  out : (String) -> Unit,
+  err : (String) -> Unit,
+) -> Int32 {
+  match load(file, read_file, err) {
+    Err(code) => code
+    Ok(doc) => {
+      let issues = @validate.validate(doc)
+      if !issues.is_empty() {
+        print_issues(err, issues)
+        return 1
+      }
+      match write_bytes(output, @codec_cbor.to_bytes(doc)) {
+        Err(message) => {
+          err("jedf: cannot write \{output}: \{message}")
+          2
+        }
+        Ok(_) => {
+          out("\{output}: written")
+          0
+        }
+      }
+    }
+  }
+}
+
+///|
+fn cmd_from_cbor(
+  file : String,
+  read_bytes : (String) -> Result[Bytes, String],
+  out : (String) -> Unit,
+  err : (String) -> Unit,
+) -> Int32 {
+  match read_bytes(file) {
+    Err(message) => {
+      err("jedf: cannot read \{file}: \{message}")
+      2
+    }
+    Ok(data) => {
+      let parsed : Result[@ast.Document, @codec_cbor.CborError] = Ok(
+        @codec_cbor.parse(data),
+      ) catch {
+        e => Err(e)
+      }
+      match parsed {
+        Err(@codec_cbor.CborError::InvalidCbor(message)) => {
+          err("jedf: \{file}: invalid CBOR: \{message}")
+          2
+        }
+        Err(@codec_cbor.CborError::Schema(message)) => {
+          err("jedf: \{file}: \{message}")
+          2
+        }
+        Ok(doc) => {
+          out(@codec.to_string(doc))
+          0
+        }
+      }
+    }
+  }
+}
+
+///|
 fn describe_container_error(error : @container.ContainerError) -> String {
   match error {
     @container.ContainerError::BadMagic => "not a jedf container"
@@ -232,11 +305,48 @@ fn cmd_pack(
 }
 
 ///|
+
+///|
+/// Where an asset goes when unpacking: next to the extracted
+/// document, under the asset's base name. Returns None for names
+/// that could escape that directory (empty, `.` or `..` segments).
+fn asset_output_path(output : String, name : String) -> String? {
+  let mut base = ""
+  for part in name.split("/") {
+    if part == ".." {
+      return None
+    }
+    base = part.to_owned()
+  }
+  if base == "" || base == "." {
+    return None
+  }
+  let output_parts : Array[String] = []
+  for part in output.split("/") {
+    output_parts.push(part.to_owned())
+  }
+  if output_parts.length() <= 1 {
+    Some(base)
+  } else {
+    let dir = StringBuilder()
+    let dir_count = output_parts.length() - 1
+    for i in 0..<dir_count {
+      if i > 0 {
+        dir.write_string("/")
+      }
+      dir.write_string(output_parts[i])
+    }
+    Some("\{dir}/\{base}")
+  }
+}
+
+///|
 fn cmd_unpack(
   file : String,
   output : String,
   read_bytes : (String) -> Result[Bytes, String],
   write_file : (String, String) -> Result[Unit, String],
+  write_bytes : (String, Bytes) -> Result[Unit, String],
   out : (String) -> Unit,
   err : (String) -> Unit,
 ) -> Int32 {
@@ -263,8 +373,18 @@ fn cmd_unpack(
             }
             Ok(_) => {
               out("\{output}: unpacked")
-              for (name, _) in assets {
-                out("asset not extracted: \{name}")
+              for (name, bytes) in assets {
+                match asset_output_path(output, name) {
+                  None => out("asset not extracted: \{name} (unsafe name)")
+                  Some(path) =>
+                    match write_bytes(path, bytes) {
+                      Err(message) => {
+                        err("jedf: cannot write \{path}: \{message}")
+                        return 2
+                      }
+                      Ok(_) => out("extracted asset: \{path}")
+                    }
+                }
               }
               0
             }

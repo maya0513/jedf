@@ -48,3 +48,14 @@ test "examples survive a container round trip" {
     @debug.assert_eq(@codec.parse(unpacked), @codec.parse(text))
   }
 }
+
+///|
+/// Every sample document also survives a CBOR round trip.
+test "examples survive a CBOR round trip" {
+  let files = ["showcase.jedf", "letter.jedf", "meeting-notes.jedf"]
+  for name in files {
+    let text = @fs.read_file_to_string("examples/" + name)
+    let doc = @codec.parse(text)
+    @debug.assert_eq(@codec_cbor.parse(@codec_cbor.to_bytes(doc)), doc)
+  }
+}

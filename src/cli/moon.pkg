@@ -5,11 +5,15 @@ import {
   "maya0513/jedf/src/render_html",
   "maya0513/jedf/src/render_typst",
   "maya0513/jedf/src/container",
+  "maya0513/jedf/src/codec_cbor",
 }
 
 import {
   "maya0513/jedf/src/cli",
+  "maya0513/jedf/src/codec",
   "maya0513/jedf/src/container",
+  "maya0513/jedf/src/codec_cbor",
+  "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/debug",
   "moonbitlang/core/quickcheck",
 } for "test"

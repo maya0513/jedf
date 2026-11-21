@@ -322,3 +322,56 @@ test "unpack rejects structurally wrong containers" {
   trailing.push(0x00)
   @debug.assert_eq(error_kind(Bytes::from_array(trailing[:])), "invalid")
 }
+
+///|
+fn large_document_text() -> String {
+  let out = StringBuilder()
+  out.write_string("{\"type\":\"document\",\"version\":1,\"blocks\":[")
+  for i in 0..<1000 {
+    if i > 0 {
+      out.write_string(",")
+    }
+    out.write_string(
+      "{\"type\":\"paragraph\",\"content\":[{\"text\":\"Paragraph number \{i} with some plain text.\"}]}",
+    )
+  }
+  out.write_string("]}")
+  out.to_string()
+}
+
+///|
+test (b : @bench.T) {
+  let asset = sample_asset()
+  let packed = @container.pack("{\"type\":\"document\"}", [("img/a.png", asset)])
+  b.bench(name="pack sample", fn() {
+    b.keep(
+      Ok(@container.pack("{\"type\":\"document\"}", [("img/a.png", asset)])) catch {
+        e => Err(e)
+      },
+    )
+  })
+  b.bench(name="unpack sample", fn() {
+    b.keep(Ok(@container.unpack(packed)) catch { e => Err(e) })
+  })
+}
+
+///|
+test (b : @bench.T) {
+  let text = large_document_text()
+  let bytes : Array[Byte] = []
+  for i in 0..<65536 {
+    bytes.push((i % 251).to_byte())
+  }
+  let asset = Bytes::from_array(bytes[:])
+  let packed = @container.pack(text, [("data.bin", asset)])
+  b.bench(name="pack large (1000 blocks, 64 KiB asset)", fn() {
+    b.keep(
+      Ok(@container.pack(text, [("data.bin", asset)])) catch {
+        e => Err(e)
+      },
+    )
+  })
+  b.bench(name="unpack large (1000 blocks, 64 KiB asset)", fn() {
+    b.keep(Ok(@container.unpack(packed)) catch { e => Err(e) })
+  })
+}

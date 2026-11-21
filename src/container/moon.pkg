@@ -5,6 +5,7 @@ import {
 
 import {
   "maya0513/jedf/src/container",
+  "moonbitlang/core/bench",
   "moonbitlang/core/debug",
   "moonbitlang/core/encoding/utf8",
   "moonbitlang/core/quickcheck",

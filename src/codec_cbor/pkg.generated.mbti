@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "maya0513/jedf/src/codec_cbor"
+
+import {
+  "maya0513/jedf/src/ast",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn parse(Bytes) -> @ast.Document raise CborError
+
+pub fn to_bytes(@ast.Document) -> Bytes
+
+// Errors
+#derive(Eq, @debug.Debug)
+pub(all) suberror CborError {
+  InvalidCbor(String)
+  Schema(String)
+}
+
+// Types and methods
+
+// Type aliases
+
+// Traits

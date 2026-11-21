@@ -1,0 +1,17 @@
+import {
+  "maya0513/jedf/src/ast",
+  "maya0513/jedf/src/codec",
+  "moonbitlang/core/encoding/utf8",
+}
+
+import {
+  "maya0513/jedf/src/codec_cbor",
+  "maya0513/jedf/src/ast",
+  "moonbitlang/core/bench",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/quickcheck",
+} for "test"
+
+import {
+  "moonbitlang/core/debug",
+} for "wbtest"

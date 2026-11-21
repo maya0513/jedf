@@ -26,6 +26,34 @@ fn fake_read_file(path : String) -> Result[String, String] {
 ///|
 
 ///|
+/// Build a container by hand (the document text plus three assets
+/// with edge-case names), for unpack path tests.
+fn edge_container() -> Bytes {
+  let manifest = "{\"version\":1,\"chunks\":[{\"name\":\"document\",\"length\":43,\"fnv1a\":\"42766020907b1aa1\"},{\"name\":\".\",\"length\":1,\"fnv1a\":\"af63f74c86021a6d\"},{\"name\":\"a/b/c.bin\",\"length\":1,\"fnv1a\":\"af63f74c86021a6d\"}]}"
+  let manifest_bytes = @utf8.encode(manifest[:])
+  let out : Array[Byte] = []
+  for b in b"JEDF" {
+    out.push(b)
+  }
+  for shift in [0, 8, 16, 24] {
+    out.push(((1 >> shift) & 0xFF).to_byte())
+  }
+  for shift in [0, 8, 16, 24] {
+    out.push(((manifest_bytes.length() >> shift) & 0xFF).to_byte())
+  }
+  for b in manifest_bytes {
+    out.push(b)
+  }
+  for
+    b in @utf8.encode("{\"type\":\"document\",\"version\":1,\"blocks\":[]}"[:]) {
+    out.push(b)
+  }
+  out.push(0x7A)
+  out.push(0x7A)
+  Bytes::from_array(out[:])
+}
+
+///|
 fn fake_read_bytes(path : String) -> Result[Bytes, String] {
   match path {
     "a.bin" => Ok(b"xy")
@@ -38,6 +66,42 @@ fn fake_read_bytes(path : String) -> Result[Bytes, String] {
       }
       Ok(packed)
     }
+    "good.cbor" => {
+      let bytes = @codec_cbor.to_bytes(
+        @codec.parse("{\"type\":\"document\",\"version\":1,\"blocks\":[]}"),
+      ) catch {
+        _ => b""
+      }
+      Ok(bytes)
+    }
+    "bad.cbor" => Ok(b"\x9f\xff")
+    "v2.cbor" =>
+      Ok(
+        Bytes::from_array([
+          0xA3, 0x64, 0x74, 0x79, 0x70, 0x65, 0x68, 0x64, 0x6F, 0x63, 0x75, 0x6D,
+          0x65, 0x6E, 0x74, 0x67, 0x76, 0x65, 0x72, 0x73, 0x69, 0x6F, 0x6E, 0x02,
+          0x66, 0x62, 0x6C, 0x6F, 0x63, 0x6B, 0x73, 0x80,
+        ]),
+      )
+    "unsafe.jedfc" => {
+      let packed = @container.pack(
+        "{\"type\":\"document\",\"version\":1,\"blocks\":[]}",
+        [("../up.bin", b"z"), ("dir/inner.bin", b"w")],
+      ) catch {
+        _ => b""
+      }
+      Ok(packed)
+    }
+    "failasset.jedfc" => {
+      let packed = @container.pack(
+        "{\"type\":\"document\",\"version\":1,\"blocks\":[]}",
+        [("bad.bin", b"z")],
+      ) catch {
+        _ => b""
+      }
+      Ok(packed)
+    }
+    "edge.jedfc" => Ok(edge_container())
     "bad.jedfc" => Ok(b"not a container at all")
     "v2.jedfc" => {
       let packed = @container.pack(
@@ -67,7 +131,7 @@ fn run_capture(args : Array[String]) -> (Int32, Capture) {
     read_file=fake_read_file,
     read_bytes=fake_read_bytes,
     write_file=fn(path, text) {
-      if path == "nowhere/out.jedf" {
+      if path.has_prefix("nowhere/") {
         Err("disk full")
       } else {
         capture.written_text.push((path, text))
@@ -75,7 +139,7 @@ fn run_capture(args : Array[String]) -> (Int32, Capture) {
       }
     },
     write_bytes=fn(path, bytes) {
-      if path == "nowhere/out.jedfc" {
+      if path.has_prefix("nowhere/") || path == "bad.bin" {
         Err("disk full")
       } else {
         capture.written.push((path, bytes))
@@ -242,9 +306,8 @@ test "unpack extracts the document" {
   @debug.assert_eq(capture.written_text, [
     ("out.jedf", "{\"type\":\"document\",\"version\":1,\"blocks\":[]}"),
   ])
-  @debug.assert_eq(capture.out, [
-    "out.jedf: unpacked", "asset not extracted: a.bin",
-  ])
+  @debug.assert_eq(capture.out, ["out.jedf: unpacked", "extracted asset: a.bin"])
+  @debug.assert_eq(capture.written, [("a.bin", b"xy")])
 }
 
 ///|
@@ -295,4 +358,95 @@ test "pack and unpack error paths" {
     capture6.err[0],
     "jedf: v2.jedfc: unsupported container version: 2",
   )
+}
+
+///|
+test "to-cbor writes the CBOR encoding" {
+  let (code, capture) = run_capture(["to-cbor", "ok.jedf", "out.cbor"])
+  @debug.assert_eq(code, 0)
+  @debug.assert_eq(capture.written.length(), 1)
+  let doc = @codec.parse(
+    "{\"type\":\"document\",\"version\":1,\"blocks\":[{\"type\":\"heading\",\"level\":1,\"content\":[{\"text\":\"T\"}]}]}",
+  )
+  @debug.assert_eq(capture.written[0].1, @codec_cbor.to_bytes(doc))
+}
+
+///|
+test "to-cbor refuses an invalid document and an unwritable output" {
+  let (code, _) = run_capture(["to-cbor", "invalid.jedf", "out.cbor"])
+  @debug.assert_eq(code, 1)
+  let (code2, capture2) = run_capture(["to-cbor", "ok.jedf", "nowhere/out.cbor"])
+  @debug.assert_eq(code2, 2)
+  @debug.assert_eq(
+    capture2.err[0],
+    "jedf: cannot write nowhere/out.cbor: disk full",
+  )
+}
+
+///|
+test "from-cbor prints canonical JSON" {
+  let (code, capture) = run_capture(["from-cbor", "good.cbor"])
+  @debug.assert_eq(code, 0)
+  @debug.assert_eq(capture.out, [
+    "{\"type\":\"document\",\"version\":1,\"blocks\":[]}",
+  ])
+}
+
+///|
+test "from-cbor error paths" {
+  let (code, capture) = run_capture(["from-cbor", "bad.cbor"])
+  @debug.assert_eq(code, 2)
+  @debug.assert_eq(
+    capture.err[0],
+    "jedf: bad.cbor: invalid CBOR: indefinite lengths are not supported",
+  )
+  let (code2, capture2) = run_capture(["from-cbor", "v2.cbor"])
+  @debug.assert_eq(code2, 2)
+  @debug.assert_eq(
+    capture2.err[0],
+    "jedf: v2.cbor: unsupported format version: 2",
+  )
+  let (code3, capture3) = run_capture(["from-cbor", "missing.cbor"])
+  @debug.assert_eq(code3, 2)
+  @debug.assert_eq(
+    capture3.err[0],
+    "jedf: cannot read missing.cbor: file not found",
+  )
+}
+
+///|
+test "unpack skips unsafe asset names and keeps base names" {
+  let (code, capture) = run_capture(["unpack", "unsafe.jedfc", "sub/out.jedf"])
+  @debug.assert_eq(code, 0)
+  @debug.assert_eq(capture.out, [
+    "sub/out.jedf: unpacked", "asset not extracted: ../up.bin (unsafe name)", "extracted asset: sub/inner.bin",
+  ])
+  @debug.assert_eq(capture.written, [("sub/inner.bin", b"w")])
+}
+
+///|
+test "unpack reports an asset write failure" {
+  let (code, capture) = run_capture(["unpack", "failasset.jedfc", "out.jedf"])
+  @debug.assert_eq(code, 2)
+  @debug.assert_eq(capture.err[0], "jedf: cannot write bad.bin: disk full")
+}
+
+///|
+test "to-cbor reports an unreadable document" {
+  let (code, capture) = run_capture(["to-cbor", "missing.jedf", "out.cbor"])
+  @debug.assert_eq(code, 2)
+  @debug.assert_eq(
+    capture.err[0],
+    "jedf: cannot read missing.jedf: file not found",
+  )
+}
+
+///|
+test "unpack handles edge-case asset names" {
+  let (code, capture) = run_capture(["unpack", "edge.jedfc", "x/y/out.jedf"])
+  @debug.assert_eq(code, 0)
+  @debug.assert_eq(capture.out, [
+    "x/y/out.jedf: unpacked", "asset not extracted: . (unsafe name)", "extracted asset: x/y/c.bin",
+  ])
+  @debug.assert_eq(capture.written, [("x/y/c.bin", b"z")])
 }

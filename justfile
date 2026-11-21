@@ -18,8 +18,8 @@ fmt-check:
 # executable is native-only, so those two run on native only)
 test:
     moon test --target native
-    moon test --target wasm -p maya0513/jedf/src/ast -p maya0513/jedf/src/validate -p maya0513/jedf/src/codec -p maya0513/jedf/src/render_html -p maya0513/jedf/src/render_typst -p maya0513/jedf/src/cli -p maya0513/jedf/src/level -p maya0513/jedf/src/web -p maya0513/jedf/src/container
-    moon test --target wasm-gc -p maya0513/jedf/src/ast -p maya0513/jedf/src/validate -p maya0513/jedf/src/codec -p maya0513/jedf/src/render_html -p maya0513/jedf/src/render_typst -p maya0513/jedf/src/cli -p maya0513/jedf/src/level -p maya0513/jedf/src/web -p maya0513/jedf/src/container
+    moon test --target wasm -p maya0513/jedf/src/ast -p maya0513/jedf/src/validate -p maya0513/jedf/src/codec -p maya0513/jedf/src/render_html -p maya0513/jedf/src/render_typst -p maya0513/jedf/src/cli -p maya0513/jedf/src/level -p maya0513/jedf/src/web -p maya0513/jedf/src/container -p maya0513/jedf/src/codec_cbor
+    moon test --target wasm-gc -p maya0513/jedf/src/ast -p maya0513/jedf/src/validate -p maya0513/jedf/src/codec -p maya0513/jedf/src/render_html -p maya0513/jedf/src/render_typst -p maya0513/jedf/src/cli -p maya0513/jedf/src/level -p maya0513/jedf/src/web -p maya0513/jedf/src/container -p maya0513/jedf/src/codec_cbor
 
 # Run tests and report any uncovered lines (must be none in library packages)
 coverage:
