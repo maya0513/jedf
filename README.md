@@ -30,7 +30,6 @@ and are not in this version.
 - `src/render_typst` — Typst source generation for print
 - `src/cli` — command line logic
 - `src/cmd/jedf` — the `jedf` executable (native)
-- `fixtures` — valid and invalid example documents
 - `docs/idea` — the design document (in Japanese, updated as decisions are made)
 
 ## Usage
