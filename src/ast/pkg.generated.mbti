@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "maya0513/jedf/ast"
+package "maya0513/jedf/src/ast"
 
 import {
   "moonbitlang/core/debug",

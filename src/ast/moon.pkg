@@ -3,6 +3,6 @@ import {
 }
 
 import {
-  "maya0513/jedf/ast",
+  "maya0513/jedf/src/ast",
   "moonbitlang/core/debug",
 } for "test"

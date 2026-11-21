@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "maya0513/jedf/cli"
+package "maya0513/jedf/src/cli"
 
 // Values
 pub fn run(Array[String], read_file~ : (String) -> Result[String, String], out~ : (String) -> Unit, err~ : (String) -> Unit) -> Int32

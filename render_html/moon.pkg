@@ -1,9 +1,0 @@
-import {
-  "maya0513/jedf/ast",
-}
-
-import {
-  "maya0513/jedf/render_html",
-  "maya0513/jedf/ast",
-  "moonbitlang/core/bench",
-} for "test"

@@ -1,12 +1,14 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "maya0513/jedf/render_html"
+package "maya0513/jedf/src/render_typst"
 
 import {
-  "maya0513/jedf/ast",
+  "maya0513/jedf/src/ast",
 }
 
 // Values
-pub fn escape(String) -> String
+pub fn escape_string(String) -> String
+
+pub fn escape_text(String) -> String
 
 pub fn render(@ast.Document) -> String
 

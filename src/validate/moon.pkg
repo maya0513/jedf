@@ -1,10 +1,10 @@
 import {
-  "maya0513/jedf/ast",
+  "maya0513/jedf/src/ast",
 }
 
 import {
-  "maya0513/jedf/validate",
-  "maya0513/jedf/ast",
+  "maya0513/jedf/src/validate",
+  "maya0513/jedf/src/ast",
   "moonbitlang/core/debug",
   "moonbitlang/core/bench",
 } for "test"

@@ -1,11 +1,11 @@
 import {
-  "maya0513/jedf/ast",
+  "maya0513/jedf/src/ast",
   "moonbitlang/core/json",
 }
 
 import {
-  "maya0513/jedf/codec",
-  "maya0513/jedf/ast",
+  "maya0513/jedf/src/codec",
+  "maya0513/jedf/src/ast",
   "moonbitlang/core/debug",
   "moonbitlang/core/quickcheck",
   "moonbitlang/core/bench",

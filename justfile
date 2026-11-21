@@ -37,7 +37,7 @@ info-check: info
 
 # Build the jedf command line tool (native)
 build:
-    moon build cmd/jedf --target native
+    moon build src/cmd/jedf --target native
 
 # Everything CI runs
 ci: fmt-check check test coverage info-check

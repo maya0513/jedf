@@ -23,13 +23,13 @@ and are not in this version.
 
 ## Layout
 
-- `ast` — the semantic tree types
-- `validate` — structural validation and resource limits
-- `codec` — the standard JSON encoding
-- `render_html` — HTML (flow) rendering
-- `render_typst` — Typst source generation for print
-- `cli` — command line logic
-- `cmd/jedf` — the `jedf` executable (native)
+- `src/ast` — the semantic tree types
+- `src/validate` — structural validation and resource limits
+- `src/codec` — the standard JSON encoding
+- `src/render_html` — HTML (flow) rendering
+- `src/render_typst` — Typst source generation for print
+- `src/cli` — command line logic
+- `src/cmd/jedf` — the `jedf` executable (native)
 - `fixtures` — valid and invalid example documents
 - `docs/idea` — the design document (in Japanese, updated as decisions are made)
 

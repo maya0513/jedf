@@ -1,5 +1,5 @@
 import {
-  "maya0513/jedf/cli",
+  "maya0513/jedf/src/cli",
   "moonbitlang/core/env",
   "moonbitlang/x/fs",
 }
