@@ -6,3 +6,4 @@ _coverage/
 /viewer/jedf-web.js
 /viewer/*.jedf
 /viewer/*.jedfc
+/viewer/*.png

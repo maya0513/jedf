@@ -22,6 +22,7 @@ test "examples parse, validate, render, and round-trip" {
     ("showcase.jedf", "<table>"),
     ("letter.jedf", "mailto:maya0513@muse.ai"),
     ("meeting-notes.jedf", "<ol>"),
+    ("nested.jedf", "Innermost section"),
   ]
   for (name, marker) in cases {
     let doc = @codec.parse(read_example(name))
@@ -39,7 +40,9 @@ test "examples parse, validate, render, and round-trip" {
 /// with a small asset, the unpacked document text parses back to an
 /// equal document.
 test "examples survive a container round trip" {
-  let files = ["showcase.jedf", "letter.jedf", "meeting-notes.jedf"]
+  let files = [
+    "showcase.jedf", "letter.jedf", "meeting-notes.jedf", "nested.jedf",
+  ]
   for name in files {
     let text = @fs.read_file_to_string("examples/" + name)
     let packed = @container.pack(text, [("note.txt", b"sample")])
@@ -52,10 +55,58 @@ test "examples survive a container round trip" {
 ///|
 /// Every sample document also survives a CBOR round trip.
 test "examples survive a CBOR round trip" {
-  let files = ["showcase.jedf", "letter.jedf", "meeting-notes.jedf"]
+  let files = [
+    "showcase.jedf", "letter.jedf", "meeting-notes.jedf", "nested.jedf",
+  ]
   for name in files {
     let text = @fs.read_file_to_string("examples/" + name)
     let doc = @codec.parse(text)
     @debug.assert_eq(@codec_cbor.parse(@codec_cbor.to_bytes(doc)), doc)
+  }
+}
+
+///|
+/// Read an example file as bytes, from either of the two locations
+/// the text helper tries.
+fn read_example_bytes(name : String) -> Bytes {
+  let direct = Some(@fs.read_file_to_bytes(name)) catch { _ => None }
+  match direct {
+    Some(bytes) => bytes
+    None =>
+      @fs.read_file_to_bytes("examples/" + name) catch {
+        _ => abort("example file not found: " + name)
+      }
+  }
+}
+
+///|
+/// The committed container sample holds the showcase document and
+/// the figure's image, byte for byte.
+test "the committed showcase container matches its sources" {
+  let packed = read_example_bytes("showcase.jedfc")
+  let (text, assets) = @container.unpack(packed)
+  @debug.assert_eq(
+    @codec.parse(text),
+    @codec.parse(read_example("showcase.jedf")),
+  )
+  @debug.assert_eq(assets.length(), 1)
+  @debug.assert_eq(assets[0].0, "semantic-tree.png")
+  @debug.assert_eq(assets[0].1, read_example_bytes("semantic-tree.png"))
+}
+
+///|
+/// The invalid example parses, but validation reports exactly the
+/// five issues it was built to contain.
+test "invalid.jedf fails validation with the expected codes" {
+  let doc = @codec.parse(read_example("invalid.jedf"))
+  let issues = @validate.validate(doc)
+  @debug.assert_eq(issues.length(), 5)
+  let codes = issues.map(fn(issue) { issue.code })
+  for
+    expected in [
+      "structure.heading_level", "structure.empty_run", "structure.link_scheme",
+      "structure.figure_alt", "structure.footnote_id",
+    ] {
+    @debug.assert_eq(codes.contains(expected), true)
   }
 }
