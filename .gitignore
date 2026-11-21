@@ -5,3 +5,4 @@ _coverage/
 .DS_Store
 /viewer/jedf-web.js
 /viewer/*.jedf
+/viewer/*.jedfc

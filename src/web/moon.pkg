@@ -2,14 +2,21 @@ import {
   "maya0513/jedf/src/ast",
   "maya0513/jedf/src/validate",
   "maya0513/jedf/src/codec",
+  "maya0513/jedf/src/container",
   "maya0513/jedf/src/render_html",
 }
 
 import {
   "maya0513/jedf/src/web",
+  "maya0513/jedf/src/container",
   "moonbitlang/core/debug",
 } for "test"
 
 options(
-  link: { "js": { "exports": [ "render_document" ], "format": "esm" } },
+  link: {
+    "js": {
+      "exports": [ "render_document", "render_container" ],
+      "format": "esm",
+    },
+  },
 )

@@ -2,6 +2,8 @@
 package "maya0513/jedf/src/web"
 
 // Values
+pub fn render_container(Bytes) -> String
+
 pub fn render_document(String) -> String
 
 // Errors

@@ -51,11 +51,14 @@ build:
     moon build src/cmd/jedf --target native
 
 # Build the browser viewer into viewer/: the library compiled to JS
-# plus copies of the examples for the page to open
+# plus copies of the examples for the page to open, and the showcase
+# packed as a container
 viewer-build:
     moon build src/web --target js
+    moon build src/cmd/jedf --target native
     cp _build/js/debug/build/src/web/web.js viewer/jedf-web.js
     cp examples/showcase.jedf examples/letter.jedf examples/meeting-notes.jedf viewer/
+    _build/native/debug/build/src/cmd/jedf/jedf.exe pack examples/showcase.jedf viewer/showcase.jedfc
 
 # Serve the viewer at http://localhost:8000
 viewer: viewer-build

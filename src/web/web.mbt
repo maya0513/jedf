@@ -29,3 +29,15 @@ pub fn render_document(json_text : String) -> String {
     }
   }
 }
+
+///|
+/// Read a container (.jedfc), extract its document, and render it
+/// like `render_document`. On any failure, returns an HTML fragment
+/// describing the problem.
+pub fn render_container(data : Bytes) -> String {
+  let text : String? = Some(@container.document(data)) catch { _ => None }
+  match text {
+    None => "<p class=\"jedf-error\">Could not read the container.</p>"
+    Some(text) => render_document(text)
+  }
+}
