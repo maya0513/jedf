@@ -19,9 +19,9 @@ fn read_example(name : String) -> String {
 /// substring that must appear in the HTML output.
 test "examples parse, validate, render, and round-trip" {
   let cases = [
-    ("showcase.json", "<table>"),
-    ("letter.json", "mailto:maya0513@muse.ai"),
-    ("meeting-notes.json", "<ol>"),
+    ("showcase.jedf", "<table>"),
+    ("letter.jedf", "mailto:maya0513@muse.ai"),
+    ("meeting-notes.jedf", "<ol>"),
   ]
   for (name, marker) in cases {
     let doc = @codec.parse(read_example(name))
@@ -31,5 +31,20 @@ test "examples parse, validate, render, and round-trip" {
     inspect(@render_typst.render(doc).length() > 0, content="true")
     let again = @codec.parse(@codec.to_string(doc))
     inspect(again == doc, content="true")
+  }
+}
+
+///|
+/// Every sample document also survives a container round trip: packed
+/// with a small asset, the unpacked document text parses back to an
+/// equal document.
+test "examples survive a container round trip" {
+  let files = ["showcase.jedf", "letter.jedf", "meeting-notes.jedf"]
+  for name in files {
+    let text = @fs.read_file_to_string("examples/" + name)
+    let packed = @container.pack(text, [("note.txt", b"sample")])
+    let (unpacked, assets) = @container.unpack(packed)
+    @debug.assert_eq(assets, [("note.txt", b"sample")])
+    @debug.assert_eq(@codec.parse(unpacked), @codec.parse(text))
   }
 }

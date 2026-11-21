@@ -1,0 +1,3 @@
+predicate clamped_level(result : Int) {
+  (result >= 1) && (result <= 6)
+}

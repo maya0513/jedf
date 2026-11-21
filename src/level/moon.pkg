@@ -1,0 +1,7 @@
+import {
+  "maya0513/jedf/src/level",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/quickcheck",
+} for "test"
+
+proof_enabled = true

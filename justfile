@@ -18,8 +18,8 @@ fmt-check:
 # executable is native-only, so those two run on native only)
 test:
     moon test --target native
-    moon test --target wasm -p maya0513/jedf/src/ast -p maya0513/jedf/src/validate -p maya0513/jedf/src/codec -p maya0513/jedf/src/render_html -p maya0513/jedf/src/render_typst -p maya0513/jedf/src/cli
-    moon test --target wasm-gc -p maya0513/jedf/src/ast -p maya0513/jedf/src/validate -p maya0513/jedf/src/codec -p maya0513/jedf/src/render_html -p maya0513/jedf/src/render_typst -p maya0513/jedf/src/cli
+    moon test --target wasm -p maya0513/jedf/src/ast -p maya0513/jedf/src/validate -p maya0513/jedf/src/codec -p maya0513/jedf/src/render_html -p maya0513/jedf/src/render_typst -p maya0513/jedf/src/cli -p maya0513/jedf/src/level -p maya0513/jedf/src/web -p maya0513/jedf/src/container
+    moon test --target wasm-gc -p maya0513/jedf/src/ast -p maya0513/jedf/src/validate -p maya0513/jedf/src/codec -p maya0513/jedf/src/render_html -p maya0513/jedf/src/render_typst -p maya0513/jedf/src/cli -p maya0513/jedf/src/level -p maya0513/jedf/src/web -p maya0513/jedf/src/container
 
 # Run tests and report any uncovered lines (must be none in library packages)
 coverage:
@@ -30,6 +30,13 @@ coverage:
 # Run benchmarks (native target)
 bench:
     moon bench --target native
+
+# Run formal verification (moon prove) for the proof-enabled packages.
+# Goes through `mise x` so that Why3 invokes the real Z3 binary from the
+# mise install instead of the shim, which it cannot resolve from its
+# working directory outside the project.
+prove:
+    mise x -- moon prove src/level
 
 # Regenerate package interface files
 info:
@@ -42,6 +49,17 @@ info-check: info
 # Build the jedf command line tool (native)
 build:
     moon build src/cmd/jedf --target native
+
+# Build the browser viewer into viewer/: the library compiled to JS
+# plus copies of the examples for the page to open
+viewer-build:
+    moon build src/web --target js
+    cp _build/js/debug/build/src/web/web.js viewer/jedf-web.js
+    cp examples/showcase.jedf examples/letter.jedf examples/meeting-notes.jedf viewer/
+
+# Serve the viewer at http://localhost:8000
+viewer: viewer-build
+    python3 -m http.server 8000 --directory viewer
 
 # Everything CI runs
 ci: fmt-check check test coverage info-check

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>jedf viewer</title>
+<style>
+  body { font-family: sans-serif; margin: 2em auto; max-width: 44em; padding: 0 1em; line-height: 1.6; }
+  nav { display: flex; gap: 0.5em; align-items: center; margin-bottom: 1em; }
+  table { border-collapse: collapse; }
+  th, td { border: 1px solid #999; padding: 0.2em 0.6em; }
+  .jedf-error { color: #b00; }
+  aside.footnote { border-top: 1px solid #999; font-size: 0.9em; }
+  code { background: #eee; padding: 0 0.2em; }
+  pre { background: #f6f6f6; padding: 0.6em; overflow-x: auto; }
+</style>
+</head>
+<body>
+<nav>
+  <strong>jedf viewer</strong>
+  <button data-example="showcase">showcase</button>
+  <button data-example="letter">letter</button>
+  <button data-example="meeting-notes">meeting-notes</button>
+  <input type="file" id="file" accept=".jedf,.json">
+</nav>
+<article id="view"></article>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

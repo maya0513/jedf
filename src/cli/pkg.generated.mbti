@@ -2,7 +2,7 @@
 package "maya0513/jedf/src/cli"
 
 // Values
-pub fn run(Array[String], read_file~ : (String) -> Result[String, String], out~ : (String) -> Unit, err~ : (String) -> Unit) -> Int32
+pub fn run(Array[String], read_file~ : (String) -> Result[String, String], read_bytes~ : (String) -> Result[Bytes, String], write_file~ : (String, String) -> Result[Unit, String], write_bytes~ : (String, Bytes) -> Result[Unit, String], out~ : (String) -> Unit, err~ : (String) -> Unit) -> Int32
 
 // Errors
 

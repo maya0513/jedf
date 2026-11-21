@@ -239,3 +239,13 @@ test (b : @bench.T) {
     b.keep(@validate.validate(doc))
   })
 }
+
+///|
+/// The validator must return its issue list for any document the type
+/// system can build, however large or deeply nested; a panic here
+/// fails the test run itself.
+test "validate never panics on arbitrary documents" {
+  @quickcheck.check(fn(doc : @ast.Document) {
+    @validate.validate(doc).length() >= 0
+  })
+}

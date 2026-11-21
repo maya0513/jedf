@@ -18,10 +18,10 @@ fn render_blocks(blocks : Array[@ast.Block], depth : Int32) -> String {
 fn render_block(block : @ast.Block, depth : Int32) -> String {
   match block {
     @ast.Block::Heading(level, runs) =>
-      "\{"=".repeat(clamp_level(level))} \{render_runs(runs)}"
+      "\{"=".repeat(@level.clamp_heading_level(level))} \{render_runs(runs)}"
     @ast.Block::Paragraph(runs) => render_runs(runs)
     @ast.Block::Section(title, children) => {
-      let heading = "\{"=".repeat(clamp_level(depth + 1))} \{render_runs(title)}"
+      let heading = "\{"=".repeat(@level.clamp_heading_level(depth + 1))} \{render_runs(title)}"
       "\{heading}\n\{render_blocks(children, depth + 1)}"
     }
     @ast.Block::ListBlock(ordered, items) => {
@@ -118,17 +118,6 @@ fn render_run(run : @ast.Run) -> String {
     None => ()
   }
   content
-}
-
-///|
-fn clamp_level(level : Int32) -> Int32 {
-  if level < 1 {
-    1
-  } else if level > 6 {
-    6
-  } else {
-    level
-  }
 }
 
 ///|

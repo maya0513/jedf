@@ -29,7 +29,7 @@ fn render_block(
 ) -> Unit {
   match block {
     @ast.Block::Heading(level, runs) => {
-      let tag = "h\{clamp_level(level)}"
+      let tag = "h\{@level.clamp_heading_level(level)}"
       buffer.write_string("<\{tag}>")
       render_runs(buffer, runs)
       buffer.write_string("</\{tag}>\n")
@@ -41,7 +41,7 @@ fn render_block(
     }
     @ast.Block::Section(title, children) => {
       buffer.write_string("<section>\n")
-      let tag = "h\{clamp_level(section_depth + 1)}"
+      let tag = "h\{@level.clamp_heading_level(section_depth + 1)}"
       buffer.write_string("<\{tag}>")
       render_runs(buffer, title)
       buffer.write_string("</\{tag}>\n")
@@ -184,17 +184,6 @@ fn render_run(run : @ast.Run) -> String {
     None => ()
   }
   html
-}
-
-///|
-fn clamp_level(level : Int32) -> Int32 {
-  if level < 1 {
-    1
-  } else if level > 6 {
-    6
-  } else {
-    level
-  }
 }
 
 ///|

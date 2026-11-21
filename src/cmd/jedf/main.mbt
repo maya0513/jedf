@@ -10,6 +10,21 @@ fn main {
         _ => Err("I/O error")
       }
     },
+    read_bytes=fn(path) {
+      Ok(@fs.read_file_to_bytes(path)) catch {
+        _ => Err("I/O error")
+      }
+    },
+    write_file=fn(path, text) {
+      Ok(@fs.write_string_to_file(path, text)) catch {
+        _ => Err("I/O error")
+      }
+    },
+    write_bytes=fn(path, bytes) {
+      Ok(@fs.write_bytes_to_file(path, bytes)) catch {
+        _ => Err("I/O error")
+      }
+    },
     out=fn(line) { println(line) },
     err=fn(line) { eprintln(line) },
   )

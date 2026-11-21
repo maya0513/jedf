@@ -4,9 +4,12 @@ import {
   "maya0513/jedf/src/codec",
   "maya0513/jedf/src/render_html",
   "maya0513/jedf/src/render_typst",
+  "maya0513/jedf/src/container",
 }
 
 import {
   "maya0513/jedf/src/cli",
+  "maya0513/jedf/src/container",
   "moonbitlang/core/debug",
+  "moonbitlang/core/quickcheck",
 } for "test"

@@ -1,0 +1,24 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "maya0513/jedf/src/container"
+
+// Values
+pub fn document(Bytes) -> String raise ContainerError
+
+pub fn format_version() -> Int32
+
+pub fn pack(String, Array[(String, Bytes)]) -> Bytes raise ContainerError
+
+pub fn unpack(Bytes) -> (String, Array[(String, Bytes)]) raise ContainerError
+
+// Errors
+pub suberror ContainerError {
+  BadMagic
+  UnsupportedVersion(Int32)
+  Invalid(String)
+}
+
+// Types and methods
+
+// Type aliases
+
+// Traits

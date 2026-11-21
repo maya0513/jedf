@@ -1,7 +1,9 @@
 import {
   "maya0513/jedf/src/codec",
+  "maya0513/jedf/src/container",
   "maya0513/jedf/src/render_html",
   "maya0513/jedf/src/render_typst",
   "maya0513/jedf/src/validate",
+  "moonbitlang/core/debug",
   "moonbitlang/x/fs",
 } for "test"

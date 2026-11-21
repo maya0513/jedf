@@ -1,2 +1,3 @@
 [tools]
 "vfox:maya0513/vfox-moonbit" = "0.10.21+06da1ed44"
+"github:Z3Prover/z3" = "latest"
