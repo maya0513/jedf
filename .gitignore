@@ -1,0 +1,5 @@
+_build/
+.mooncakes/
+.repos/
+_coverage/
+.DS_Store

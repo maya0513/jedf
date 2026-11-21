@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Update the package index
+        run: moon update
+
+      - name: Format check
+        run: moon fmt --check
+
+      - name: Check
+        run: moon check --deny-warn --target all
+
+      - name: Test
+        run: moon test
+
+      - name: Coverage
+        run: |
+          moon coverage clean
+          moon test
+          moon coverage analyze
+
+      - name: Interface files are up to date
+        run: |
+          moon info
+          git diff --exit-code -- ':(glob)**/pkg.generated.mbti'

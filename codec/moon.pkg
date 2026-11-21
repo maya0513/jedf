@@ -1,0 +1,12 @@
+import {
+  "maya0513/jedf/ast",
+  "moonbitlang/core/json",
+}
+
+import {
+  "maya0513/jedf/codec",
+  "maya0513/jedf/ast",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/quickcheck",
+  "moonbitlang/core/bench",
+} for "test"

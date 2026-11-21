@@ -1,0 +1,9 @@
+import {
+  "maya0513/jedf/cli",
+  "moonbitlang/core/env",
+  "moonbitlang/x/fs",
+}
+
+supported_targets = "native"
+
+pkgtype(kind: "executable")

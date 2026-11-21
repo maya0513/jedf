@@ -1,0 +1,61 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "maya0513/jedf/ast"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/quickcheck",
+  "moonbitlang/core/quickcheck/shrink",
+}
+
+// Values
+pub fn count_scalars(String) -> Int32
+
+// Errors
+
+// Types and methods
+#derive(Eq, @debug.Debug, @quickcheck.Arbitrary, @shrink.Shrink)
+pub(all) enum Block {
+  Heading(Int32, Array[Run])
+  Paragraph(Array[Run])
+  Section(Array[Run], Array[Block])
+  ListBlock(Bool, Array[Array[Block]])
+  TableBlock(Array[TableRow])
+  CodeBlock(String, String?)
+  MathBlock(String)
+  FigureBlock(String, String, Array[Run]?)
+  FootnoteBlock(String, Array[Block])
+  PageBreakHint
+}
+
+#derive(Eq, @debug.Debug, @quickcheck.Arbitrary, @shrink.Shrink)
+pub(all) struct Document {
+  blocks : Array[Block]
+}
+
+#derive(Eq, @debug.Debug, @quickcheck.Arbitrary, @shrink.Shrink)
+pub(all) struct Marks {
+  emphasis : Bool
+  strong : Bool
+  code : Bool
+  math : Bool
+  link : String?
+}
+pub fn Marks::Marks() -> Self
+
+#derive(Eq, @debug.Debug, @quickcheck.Arbitrary, @shrink.Shrink)
+pub(all) struct Run {
+  text : String
+  marks : Marks
+}
+pub fn Run::marked(String, Marks) -> Self
+pub fn Run::plain(String) -> Self
+
+#derive(Eq, @debug.Debug, @quickcheck.Arbitrary, @shrink.Shrink)
+pub(all) struct TableRow {
+  header : Bool
+  cells : Array[Array[Block]]
+}
+
+// Type aliases
+
+// Traits

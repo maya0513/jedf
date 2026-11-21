@@ -1,0 +1,37 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "maya0513/jedf/validate"
+
+import {
+  "maya0513/jedf/ast",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn validate(@ast.Document, limits? : Limits) -> Array[Issue]
+
+// Errors
+
+// Types and methods
+#derive(Eq, @debug.Debug)
+pub(all) struct Issue {
+  code : String
+  path : String
+  message : String
+}
+
+#derive(Eq, @debug.Debug)
+pub(all) struct Limits {
+  max_depth : Int32
+  max_blocks : Int32
+  max_runs_per_block : Int32
+  max_text_scalars : Int32
+  max_total_text_scalars : Int32
+  max_table_rows : Int32
+  max_table_columns : Int32
+  max_list_items : Int32
+}
+pub fn Limits::default() -> Self
+
+// Type aliases
+
+// Traits

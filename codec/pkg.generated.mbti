@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "maya0513/jedf/codec"
+
+import {
+  "maya0513/jedf/ast",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/json",
+}
+
+// Values
+pub let format_version : Int32
+
+pub fn from_json(@json.Json) -> @ast.Document raise CodecError
+
+pub fn parse(String) -> @ast.Document raise CodecError
+
+pub fn to_json(@ast.Document) -> @json.Json
+
+pub fn to_string(@ast.Document) -> String
+
+// Errors
+#derive(Eq, @debug.Debug)
+pub(all) suberror CodecError {
+  InvalidJson(String)
+  Schema(String)
+}
+
+// Types and methods
+
+// Type aliases
+
+// Traits

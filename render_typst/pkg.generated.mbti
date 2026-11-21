@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "maya0513/jedf/render_typst"
+
+import {
+  "maya0513/jedf/ast",
+}
+
+// Values
+pub fn escape_string(String) -> String
+
+pub fn escape_text(String) -> String
+
+pub fn render(@ast.Document) -> String
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
